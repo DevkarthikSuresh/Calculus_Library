@@ -1,1 +1,49 @@
+# It only works for polynomials right now.
 
+
+import sympy as sp
+from sympy import *
+from math import *
+
+def check_expression_type(expr):
+    if expr.is_rational_function:
+        denominator = sp.denom(expr)
+        ans = sp.solve(denominator, x)
+        return ans
+
+
+E = 0.01
+
+x = sp.symbols('x')
+expression = input("Function of which you want to find the area under: ")
+l = float(input("Enter the lower limit: "))
+u = float(input("Enter the upper limit: "))
+fx = sp.sympify(expression)
+
+first_derivative = sp.diff(fx, x, 1)
+equation = sp.Eq(first_derivative, 0)
+critical_point = sp.solve(equation)
+
+second_derivative = sp.diff(fx, x, 2)
+M = [second_derivative.subs(x, cp) for cp in critical_point]
+maximum = max(M)
+
+# error bound formula for trapezoidal rule[ E <= {b-a)^3 * Max (f''(x))/(12n^2) ]
+# Max(f''(x)) The maximum value of the absolute value of the second derivative over the interval [a,b]
+# where n is number of strips to be taken
+
+n = sqrt((u - l) ** 3 * maximum / (12 * E))  # considering Error E = 0.01
+n = ceil(n)  # gives upper limit of a decimal num
+print(n)
+# Trapezoidal Rule
+
+h = (u - l) / n
+point_1 = l
+point_2 = l + h
+total_area = 0
+for i in range(n):
+    area = h * (fx.subs(x, point_1) + fx.subs(x, point_2)) / 2
+    point_1 += h
+    point_2 += h
+    total_area += area
+print(total_area)
